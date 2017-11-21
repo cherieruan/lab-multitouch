@@ -10,6 +10,9 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * An example SurfaceView for generating graphics on
  * @author Joel Ross
@@ -31,6 +34,7 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private Paint goldPaint; //drawing variables (pre-defined for speed)
 
     public Ball ball; //public for easy access
+    private Map<Integer, Ball> map = new HashMap<Integer, Ball>();
 
 
     /**
@@ -90,7 +94,10 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
         canvas.drawColor(Color.rgb(51,10,111)); //purple out the background
 
-        canvas.drawCircle(ball.cx, ball.cy, ball.radius, whitePaint); //we can draw directly onto the canvas
+        for (int id : map.keySet()) {
+            Ball ball = map.get(id);
+            canvas.drawCircle(ball.cx, ball.cy, ball.radius, goldPaint); //we can draw directly onto the canvas
+        }
     }
 
 
@@ -130,6 +137,19 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
             }
         }
         Log.d(TAG, "Drawing thread shut down");
+    }
+
+    public synchronized void addTouch(int pointerId, float x, float y) {
+        map.put(pointerId, new Ball(x, y, 75f));
+    }
+
+    public synchronized void removeTouch(int pointerId) {
+        map.remove(pointerId);
+    }
+
+    public synchronized void moveTouch(int pointerId, float x, float y) {
+        map.get(pointerId).setX(x);
+        map.get(pointerId).setY(y);
     }
 
     /**
